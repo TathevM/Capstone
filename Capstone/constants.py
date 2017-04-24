@@ -1,0 +1,1 @@
+LOGISTIC_FUNCTION = 'log_fun'
