@@ -2,6 +2,7 @@
 from Capstone import constants as cnts
 from Capstone.one_bit_matrix_completion import OneBitMatrixCompletion
 from Capstone.movielense_processor import MovielenseProcessor
+import numpy as np
 
 class TopProcessor:
     """
@@ -11,7 +12,7 @@ class TopProcessor:
     movielense_proc = MovielenseProcessor
     one_bit_completor = OneBitMatrixCompletion
 
-    def __init__(self, df=None, th=None, pd=cnts.LOGISTIC_FUNCTION):
+    def __init__(self, df=None):
         """ This method initializes the main parameters using the inputs given
         
         Parameters
@@ -23,10 +24,11 @@ class TopProcessor:
         :param pd: 
         """
         self.movielense_proc = MovielenseProcessor(data_file=df)
-        self.one_bit_completor = OneBitMatrixCompletion(th, pd)
+        self.one_bit_completor = OneBitMatrixCompletion()
 
     def run(self):
-        M = self.movielense_proc.extract_rating_matrix()
+        M = np.matrix([[1, cnts.NO_VALUE, 1], [-1, 1, 1], [cnts.NO_VALUE, 1, cnts.NO_VALUE]])
+        #self.movielense_proc.extract_rating_matrix()
         Mhat = self.one_bit_completor.complete(M)
         #TODO: Do something with Mhat
 
