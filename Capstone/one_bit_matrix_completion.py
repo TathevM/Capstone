@@ -7,7 +7,7 @@ from scipy.optimize import minimize_scalar
 
 class OneBitMatrixCompletion:
 
-    r = 943
+    r = 10
     alpha = 0.1
     gamma = 0.5
     NUM_STEPS = 1000
