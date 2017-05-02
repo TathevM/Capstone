@@ -7,8 +7,8 @@ from scipy.optimize import minimize_scalar
 
 class OneBitMatrixCompletion:
 
-    r = 2
-    alpha = 0.8
+    r = 943
+    alpha = 0.1
     gamma = 0.5
     NUM_STEPS = 1000
 
@@ -29,14 +29,13 @@ class OneBitMatrixCompletion:
             rho = minimize_scalar(fun.bisection_objective, bounds=(0, 1), args=(Mk, Y, omega, step))
             Mk = Mk + np.dot(rho.x, step)
 
-
     def compute_omega_m0(self, Y):
         omega = []
         M = Y
         d1, d2 = Y.shape
         for i, j in zip(range(d1), range(d2)):
-            if Y.item((i, j)) == cnts.NO_VALUE:
+            if Y.item((i, j)) != cnts.NO_VALUE:
                 omega.append((i, j))
-                M[i, j] = 0
+
         return omega, M
 

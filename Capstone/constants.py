@@ -1,2 +1,2 @@
 LOGISTIC_FUNCTION = 'log_fun'
-NO_VALUE = -2
+NO_VALUE = 0

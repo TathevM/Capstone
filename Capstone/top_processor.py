@@ -23,12 +23,12 @@ class TopProcessor:
         :type df: str
         :param pd: 
         """
-        self.movielense_proc = MovielenseProcessor(data_file=df)
+        self.movielense_proc = MovielenseProcessor()
         self.one_bit_completor = OneBitMatrixCompletion()
 
     def run(self):
-        M = np.matrix([[1, cnts.NO_VALUE, 1], [-1, 1, 1], [cnts.NO_VALUE, 1, cnts.NO_VALUE]])
-        #self.movielense_proc.extract_rating_matrix()
+        M = self.movielense_proc.extract_rating_matrix('../data/u_data.xlsx', 943, 1682)#np.matrix([[1, cnts.NO_VALUE,
+        #  1], [-1, 1, 1], [cnts.NO_VALUE, 1, cnts.NO_VALUE]])
         Mhat = self.one_bit_completor.complete(M)
         #TODO: Do something with Mhat
 
