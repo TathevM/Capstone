@@ -1,20 +1,16 @@
-"""
-All important functions that we are going to use are in this file.
-"""
+"""The main functions that we are going to use in our implementation are in this file."""
+
 import numpy as np
 import math
 import scipy
 
-"""
-Logistic function:
-"""
+"""Logistic function:"""
 
 def logistic(x):
     """ This is the logistic function for a given numeric value x
-  
     Parameters
     ----------
-    :param x: input number to comute the logistic function for
+    :param x: input number to compute the logistic function for
     :type x: float
     
     Returns
@@ -24,7 +20,7 @@ def logistic(x):
     """
     print(x)
 
-    if x > 0:
+    if x > 0: 
         logist = 1 / (1 + math.exp(x))
     else:
         logist = 1 / (1 + math.exp(-1 * x))
@@ -32,18 +28,22 @@ def logistic(x):
     return logist
 
 
-"""
-Log-Likelihood: Function that calculates log-likelihood of given Matrix.
-"""
+"""Log-Likelihood: Function that calculates log-likelihood of given Matrix."""
 
 
 def log_likelihood(X, Y, omega):
     """
-  
-    :param X:
+    Parameters
+    ----------
+    :param X: Input matrix to compute the loglikelihood 
     :type X: np.matrix
-    :param Y: 
-    :param omega: 
+    :param Y: matrix with 1bit values
+    :param omega: set of observed entries
+    
+      Returns
+    -------
+    :return: the lloglikelihood 
+    :rtype: float
     """
     log_lik = 0
     for i, j in omega:
@@ -63,16 +63,15 @@ def log_likelihood(X, Y, omega):
 
     return log_lik
 
-"""
-Gradient: Computes the gradient of the log likelihood function at a given point(Matrix)
-"""
+"""Gradient: Computes the gradient of the log likelihood function at a given point(Matrix)"""
 def gradient_log_likelihood(X, Y, omega):
     """
-
-    :param X:
+     Parameters
+    ----------
+    :param X: Input matrix
     :type X: np.matrix
-    :param Y: 
-    :param omega: 
+    :param Y: matrix with 1bit values
+    :param omega: set of observed entries
     """
     gradient_log_lik = 0
     for i, j in omega:
@@ -85,23 +84,22 @@ def gradient_log_likelihood(X, Y, omega):
         elif y_ij == -1:
             grad_elem = 1 / (x_ij_exp + 1)
         else:
-            print("What is wrong with you, man! Y should be either 1 or -1, goddamn it")
+            print("Y should be either 1 or -1!")
         gradient_log_lik += grad_elem
 
     return gradient_log_lik
 
 
-"""
-Lambda function, computes lambda for Projection function
-"""
+"""Lambda function, computes lambda for Projection function"""
 
 def svd_and_lamdba_x(X, r, alpha):
     """
-
-    :param X: 
-    :param r: 
-    :param alpha: 
-    :return: 
+     Parameters
+    ----------
+    :param X: input matrix
+    :param r: rank of the matrix
+    :param alpha: constant value to be chosen
+    :return: matrices U,D,V, lam
     """
     U, D, V = np.linalg.svd(X, full_matrices=False)
     d1, d2 = X.shape
@@ -118,19 +116,18 @@ def svd_and_lamdba_x(X, r, alpha):
             #     return U, D, V, 1
 
 
-"""
-Check the nuclear norm condition
-"""
+"""Check the nuclear norm condition"""
 def nuclear_norm_condition(alpha, r, d1, d2, D, k):
     """
-
-    :param alpha: 
-    :param r: 
-    :param d1: 
-    :param d2: 
-    :param D: 
+     Parameters
+    ----------
+    :param r: rank of the matrix
+    :param alpha: constant value to be chosen
+    :param d1: dimension of the matrix
+    :param d2: dimension of the matrix
+    :param D: Diagonal matrix
     :param k: 
-    :return: 
+    :return: boolean answer, true or false
     """
     sum_dk1 = np.sum(D[0:k + 1]) - k * D.item(k - 1)
     sum_dk2 = np.sum(D[0:k + 1]) - k * D.item(k)
@@ -141,15 +138,14 @@ def nuclear_norm_condition(alpha, r, d1, d2, D, k):
     else:
         return False
 
-"""
-Function to implement project on a set
-"""
+"""Function to implement project on a set"""
 def projection_on_set(X, r, alpha):
     """
-
-    :param X: 
-    :param r: 
-    :param alpha: 
+     Parameters
+    ----------
+    :param X: input matrix
+    :param r: rank of the matrix
+    :param alpha: constant value to be chosen
     :return: 
     """
 
@@ -161,7 +157,19 @@ def projection_on_set(X, r, alpha):
     udv = np.dot(U, np.dot(diff_matrix, V))
     return udv
 
+"""Function to compute the objective for the bisection method"""
 def bisection_objective(rho, X, Y, omega, s):
+    """
+     Parameters
+    ----------
+      :param X: input matrix
+      :param rho: result of bisection
+      :param s: step size
+      :param Y: 1 bit matrix
+      :param: omega: set of observed entries
+      :return: objective function
+      """
+
     return -1 * log_likelihood(np.dot(rho, X) + np.dot(1 - rho, X + s), Y, omega)
 
 

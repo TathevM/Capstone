@@ -1,7 +1,6 @@
 
 from Capstone import functions as fun
 from Capstone import constants as cnts
-
 import numpy as np
 from scipy.optimize import minimize_scalar
 
@@ -17,8 +16,9 @@ class OneBitMatrixCompletion:
 
     def complete(self, Y):
         """
-
-        :param Y:
+        Parameters
+        --------------
+        :param Y: 1 bit matrix
         :type Y: np.matrix
         """
         omega, Mk = self.compute_omega_m0(Y)
@@ -30,12 +30,17 @@ class OneBitMatrixCompletion:
             Mk = Mk + np.dot(rho.x, step)
 
     def compute_omega_m0(self, Y):
+        """
+               Parameters
+               --------------
+               :param Y: 1 bit matrix
+               :type Y: np.matrix
+               """
         omega = []
         M = Y
         d1, d2 = Y.shape
         for i, j in zip(range(d1), range(d2)):
             if Y.item((i, j)) != cnts.NO_VALUE:
                 omega.append((i, j))
-
         return omega, M
 
