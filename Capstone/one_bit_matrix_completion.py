@@ -22,13 +22,13 @@ class OneBitMatrixCompletion:
         :type Y: np.matrix
         """
         omega, Mk = self.compute_omega_m0(Y)
-        for k in range(1, 1000):
+        for k in range(1, 5):
             _, _, _, lam = fun.svd_and_lamdba_x(Mk, self.r, self.alpha)
             proj_input = Mk - self.gamma * fun.gradient_log_likelihood(Mk, Y, omega)
             step = fun.projection_on_set(proj_input, self.r, self.alpha) - Mk
             rho = minimize_scalar(fun.bisection_objective, bounds=(0, 1), args=(Mk, Y, omega, step))
             Mk = Mk + np.dot(rho.x, step)
-
+        return Mk
     def compute_omega_m0(self, Y):
         """
                Parameters

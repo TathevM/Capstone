@@ -18,12 +18,15 @@ def logistic(x):
     :return: the logistic value for x
     :rtype: float
     """
-    print(x)
 
-    if x > 0: 
-        logist = 1 / (1 + math.exp(x))
-    else:
+    try:
         logist = 1 / (1 + math.exp(-1 * x))
+        #logist = x / np.sqrt(1 + x * x)
+    except OverflowError:
+        if x > 0:
+            logist = 1
+        else:
+            logist = 0
    # logist = scipy.special.expit(x)
     return logist
 
@@ -51,12 +54,21 @@ def log_likelihood(X, Y, omega):
         x_ij = X.item((i, j))
         y_ij = Y.item((i, j))
         logistic_x_ij = logistic(x_ij)
+
         if y_ij == 1:
-            elem = math.log(logistic_x_ij, math.e)
+            if logistic_x_ij == 0:
+                elem = 0
+            else:
+                elem = math.log(logistic_x_ij, math.e)
         elif y_ij == -1:
             temp = 1 - logistic_x_ij
-            #print((i, j, temp, x_ij))
-            elem = math.log(temp, math.e)
+            if temp == 0:
+                elem = 0
+            else:
+                try:
+                    elem = math.log(temp, math.e)
+                except ValueError:
+                    print((x_ij, temp))
         else:
             print( "Y should be either 1 or -1")
         log_lik += elem
@@ -78,17 +90,65 @@ def gradient_log_likelihood(X, Y, omega):
         grad_elem = 0
         x_ij = X.item((i, j))
         y_ij = Y.item((i, j))
-        x_ij_exp = math.exp(x_ij)
+        print(x_ij)
+        #x_ij_exp = math.exp(x_ij)
+        try:
+            x_ij_exp = math.exp(x_ij)
+        except OverflowError:
+            x_ij_exp = float('inf')
+
         if y_ij == 1:
-            grad_elem = -x_ij_exp / (x_ij_exp + 1)
+           grad_elem = x_ij_exp / (x_ij_exp+1)**2
+           #grad_elem = -x_ij_exp / (x_ij_exp + 1)
         elif y_ij == -1:
+            #grad_elem = - x_ij_exp / (x_ij_exp + 1) ** 2
             grad_elem = 1 / (x_ij_exp + 1)
         else:
-            print("Y should be either 1 or -1!")
-        gradient_log_lik += grad_elem
+             print("Y should be either 1 or -1!")
+    gradient_log_lik += grad_elem
 
     return gradient_log_lik
 
+    # gradient_log_lik = 0
+    # for i, j in omega:
+    #     grad_elem = 0
+    #     x_ij = X.item((i, j))
+    #     y_ij = Y.item((i, j))
+    #     x_ij_exp = math.exp(x_ij)
+    #     if y_ij == 1:
+    #         grad_elem = -x_ij_exp / (x_ij_exp + 1)
+    #     elif y_ij == -1:
+    #         grad_elem = 1 / (x_ij_exp + 1)
+    #     else:
+    #         print("Y should be either 1 or -1!")
+    #     gradient_log_lik += grad_elem
+    #
+    # return gradient_log_lik
+
+
+
+
+    # if y_ij == 1:
+    #     try:
+    #         grad_elem = x_ij_exp / (x_ij_exp + 1) ** 2
+    #         # grad_elem = -x_ij_exp / (x_ij_exp + 1)
+    #     except OverflowError:
+    #         grad_elem = 1
+    #
+    # elif y_ij == -1:
+    #     try:
+    #         grad_elem = - x_ij_exp / (x_ij_exp + 1) ** 2
+    #     # grad_elem = 1 / (x_ij_exp + 1)
+    #     except OverflowError:
+    #         grad_elem = -1
+ #
+
+ # if y_ij == 1:
+ #            grad_elem = x_ij_exp / (x_ij_exp+1)**2
+ #            # grad_elem = -x_ij_exp / (x_ij_exp + 1)
+ #        elif y_ij == -1:
+ #            #grad_elem = - x_ij_exp / (x_ij_exp + 1) ** 2
+ #            grad_elem = 1 / (x_ij_exp + 1)
 
 """Lambda function, computes lambda for Projection function"""
 
@@ -133,7 +193,7 @@ def nuclear_norm_condition(alpha, r, d1, d2, D, k):
     sum_dk2 = np.sum(D[0:k + 1]) - k * D.item(k)
     radi = alpha * np.sqrt(r * d1 * d2)
     if sum_dk1 <= radi <= sum_dk2:
-        print('TASHI')
+        print('Condition is satisfied! ^_^')
         return True
     else:
         return False

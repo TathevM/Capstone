@@ -2,6 +2,7 @@
 from Capstone import constants as cnts
 from Capstone.one_bit_matrix_completion import OneBitMatrixCompletion
 from Capstone.movielense_processor import MovielenseProcessor
+from Capstone import functions as fn
 import numpy as np
 
 class TopProcessor:
@@ -30,7 +31,18 @@ class TopProcessor:
         M = self.movielense_proc.extract_rating_matrix('../data/u_data.xlsx', 943, 1682)#np.matrix([[1, cnts.NO_VALUE,
         #  1], [-1, 1, 1], [cnts.NO_VALUE, 1, cnts.NO_VALUE]])
         Mhat = self.one_bit_completor.complete(M)
+
         #TODO: Do something with Mhat
+        d1, d2 = Mhat.shape
+        for i in range(d1):
+            for j in range(d2):
+                val = fn.logistic(Mhat[i, j])
+                print(val)
+                if val >= 1 / 2:
+                    Mhat[i, j] = 1
+                else:
+                    Mhat[i, j] = -1
+        np.save('output', Mhat)
 
 if __name__ == "__main__":
     one_compet = TopProcessor()
