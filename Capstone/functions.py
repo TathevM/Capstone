@@ -90,7 +90,7 @@ def gradient_log_likelihood(X, Y, omega):
         grad_elem = 0
         x_ij = X.item((i, j))
         y_ij = Y.item((i, j))
-        print(x_ij)
+       # print(x_ij)
         #x_ij_exp = math.exp(x_ij)
         try:
             x_ij_exp = math.exp(x_ij)
@@ -98,11 +98,21 @@ def gradient_log_likelihood(X, Y, omega):
             x_ij_exp = float('inf')
 
         if y_ij == 1:
-           grad_elem = x_ij_exp / (x_ij_exp+1)**2
+            try:
+                grad_elem = x_ij_exp / (x_ij_exp + 1) ** 2
+            except OverflowError:
+                grad_elem = float('inf')
+
+           #grad_elem = x_ij_exp / (x_ij_exp+1)**2
            #grad_elem = -x_ij_exp / (x_ij_exp + 1)
         elif y_ij == -1:
+            try:
+                grad_elem = - x_ij_exp / (x_ij_exp + 1) ** 2
+            except OverflowError:
+                grad_elem = float('inf')
+
             #grad_elem = - x_ij_exp / (x_ij_exp + 1) ** 2
-            grad_elem = 1 / (x_ij_exp + 1)
+            #grad_elem = 1 / (x_ij_exp + 1)
         else:
              print("Y should be either 1 or -1!")
     gradient_log_lik += grad_elem
