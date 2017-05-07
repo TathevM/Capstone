@@ -4,15 +4,19 @@ from Capstone import constants as cnts
 import numpy as np
 from scipy.optimize import minimize_scalar
 
+
 class OneBitMatrixCompletion:
 
-    r = 10
-    alpha = 0.1
-    gamma = 0.5
-    NUM_STEPS = 1000
+    r = int
+    alpha = float
+    gamma = float
+    num_steps = int
 
-    def __init__(self):
-        pass
+    def __init__(self, r_, step_, gamma_, alpha_):
+        self.r = r_
+        self.num_steps = step_
+        self.gamma = gamma_
+        self.alpha = alpha_
 
     def complete(self, Y):
         """
@@ -21,21 +25,26 @@ class OneBitMatrixCompletion:
         :param Y: 1 bit matrix
         :type Y: np.matrix
         """
-        omega, Mk = self.compute_omega_m0(Y)
-        for k in range(1, 5):
-            _, _, _, lam = fun.svd_and_lamdba_x(Mk, self.r, self.alpha)
-            proj_input = Mk - self.gamma * fun.gradient_log_likelihood(Mk, Y, omega)
-            step = fun.projection_on_set(proj_input, self.r, self.alpha) - Mk
-            rho = minimize_scalar(fun.bisection_objective, bounds=(0, 1), args=(Mk, Y, omega, step))
-            Mk = Mk + np.dot(rho.x, step)
-        return Mk
-    def compute_omega_m0(self, Y):
+        omega, mk = self.compute_omega_m0(Y)
+        for k in range(1, self.num_steps):
+            # _, _, _, lam = fun.svd_and_lamdba_x(mk, self.r, self.alpha)
+            proj_input = mk - self.gamma * fun.gradient_log_likelihood(mk, Y, omega)
+            step = fun.projection_on_set(proj_input, self.r, self.alpha) - mk
+            rho = minimize_scalar(fun.bisection_objective, bounds=(0, 1), method='bounded',
+                                  args=(mk, Y, omega, step))
+            mk = mk + np.dot(rho.x, step)
+
+        mk = self.normalize_matrix(mk)
+        return mk
+
+    @staticmethod
+    def compute_omega_m0(Y):
         """
-               Parameters
-               --------------
-               :param Y: 1 bit matrix
-               :type Y: np.matrix
-               """
+        Parameters
+        --------------
+        :param Y: 1 bit matrix
+        :type Y: np.matrix
+        """
         omega = []
         M = Y
         d1, d2 = Y.shape
@@ -44,3 +53,19 @@ class OneBitMatrixCompletion:
                 omega.append((i, j))
         return omega, M
 
+    @staticmethod
+    def normalize_matrix(Mhat):
+        """
+
+        :param Mhat: 
+        :return: 
+        """
+        d1, d2 = Mhat.shape
+        for i in range(d1):
+            for j in range(d2):
+                val = fun.logistic(Mhat[i, j])
+                if val >= 1 / 2:
+                    Mhat[i, j] = 1
+                else:
+                    Mhat[i, j] = -1
+        return Mhat

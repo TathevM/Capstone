@@ -4,6 +4,7 @@ from Capstone.one_bit_matrix_completion import OneBitMatrixCompletion
 from Capstone.movielense_processor import MovielenseProcessor
 from Capstone import functions as fn
 import numpy as np
+import matplotlib.pyplot as plt
 
 class TopProcessor:
     """
@@ -25,24 +26,49 @@ class TopProcessor:
         :param pd: 
         """
         self.movielense_proc = MovielenseProcessor()
-        self.one_bit_completor = OneBitMatrixCompletion()
+        self.one_bit_completor = OneBitMatrixCompletion(10, 5, 0.5, 0.1)
 
     def run(self):
-        M = self.movielense_proc.extract_rating_matrix('../data/u_data.xlsx', 943, 1682)#np.matrix([[1, cnts.NO_VALUE,
-        #  1], [-1, 1, 1], [cnts.NO_VALUE, 1, cnts.NO_VALUE]])
-        Mhat = self.one_bit_completor.complete(M)
+        M = self.movielense_proc.extract_rating_matrix('../data/test.xlsx', 10, 15)
+        complete_M = self.movielense_proc.extract_rating_matrix('../data/small_data.xlsx',
+                                                                10, 15)
 
-        #TODO: Do something with Mhat
-        d1, d2 = Mhat.shape
-        for i in range(d1):
-            for j in range(d2):
-                val = fn.logistic(Mhat[i, j])
-                print(val)
-                if val >= 1 / 2:
-                    Mhat[i, j] = 1
-                else:
-                    Mhat[i, j] = -1
+        r_vals = [2, 5, 10]
+        step_vals = [5, 100, 1000, 10000]
+        alph_vals = [0.01, 0.1, 0.5, 1]
+        gamm_vals = [0.01, 0.1, 0.5, 1]
+
+        errors = []
+        for r in r_vals:
+            for step in step_vals:
+                self.one_bit_completor.r = r
+                self.one_bit_completor.num_steps = step
+                Mhat = self.one_bit_completor.complete(M)
+                error = self.compute_least_square_error(complete_M, Mhat)
+                errors.append(error)
+
+        print(errors)
+        # self.plot_errors(r_vals, step_vals, errors)
         np.save('output', Mhat)
+
+    def compute_least_square_error(self, M, Mhat):
+        """
+
+        :param M: 
+        :param Mhat: 
+        """
+        diff = Mhat - M
+        max_diff = np.max(diff)
+        if max_diff == 0:
+            return 0
+
+        diff_norm = np.divide(diff, max_diff)
+        lst = np.sqrt(np.sum(diff_norm ** 2))
+        return lst
+
+    def plot_errors(self, r_vals, step_vals, errors):
+        pass
+
 
 if __name__ == "__main__":
     one_compet = TopProcessor()

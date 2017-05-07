@@ -1,7 +1,6 @@
 import openpyxl as xl
 import numpy
 from Capstone import constants as cnts
-from openpyxl import Workbook
 
 
 class MovielenseProcessor:
