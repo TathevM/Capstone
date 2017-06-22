@@ -40,10 +40,10 @@ class TopProcessor:
         # t, f = self.validate(Mhat, s)
         # print(t, f)
 
-        r_vals = [10, 900, 943]
-        step_vals = [5, 10, 50, 100]
-        alph_vals = [0.01, 0.1, 0.5, 1]
-        gamm_vals = [0.01, 0.1, 0.5, 1]
+        r_vals = [5, 910, 943]
+        step_vals = [1000]
+        alph_vals = [1, 0.1, 0.5, 0.01]
+        gamm_vals = [1, 0.1, 0.5, 0.01]
 
         errors = []
         for r in r_vals:
@@ -92,7 +92,7 @@ class TopProcessor:
             rating = row[2].value
             if mat[u_id, m_id] == 1 and rating > 2:
                 true_val += 1
-                print('KUKU!')
+                # print('KUKU!')
             elif mat[u_id, m_id] == -1 and rating <= 2:
                 true_val += 1
             else:

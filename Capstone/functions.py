@@ -63,7 +63,9 @@ def log_likelihood(X, Y, omega):
         elif y_ij == -1:
             temp = 1 - logistic_x_ij
             if temp == 0:
-                elem = 0
+                elem = -10**(15)
+                # elem = 0
+
             else:
                 try:
                     elem = math.log(temp, math.e)
@@ -85,6 +87,7 @@ def gradient_log_likelihood(X, Y, omega):
     :param Y: matrix with 1bit values
     :param omega: set of observed entries
     """
+
     gradient_log_lik = 0
     for i, j in omega:
         grad_elem = 0
@@ -107,10 +110,11 @@ def gradient_log_likelihood(X, Y, omega):
             try:
                 grad_elem = - x_ij_exp / (x_ij_exp + 1)
             except OverflowError:
-                grad_elem = 0
+                grad_elem = -1
+                #grad_elem = 0
         else:
              print("Y should be either 1 or -1!")
-    gradient_log_lik += grad_elem
+        gradient_log_lik += grad_elem
 
     return gradient_log_lik
 
@@ -129,15 +133,12 @@ def svd_and_lamdba_x(X, r, alpha):
     d1, d2 = X.shape
 
     lam = 0
-    for k in range(1, min(d1,d2)):
+    for k in range(1, min(d1, d2) - 1):
         if nuclear_norm_condition(alpha, r, d1, d2, D, k):
-            lam = (np.sum(D[0:k]) - alpha * np.sqrt(r * d1 * d2)) / k
+            lam = (np.sum(D[0:k + 1]) - alpha * np.sqrt(r * d1 * d2)) / k
+            print('kuku')
             break
-        #print(lam)
-        #if lam > 0:
     return U, D, V, lam
-            # if D[k] < -1:
-            #     return U, D, V, 1
 
 
 """Check the nuclear norm condition"""
@@ -177,7 +178,8 @@ def projection_on_set(X, r, alpha):
     diff_vector = D - lam_vector
     diff_vector = diff_vector.clip(min=0)
     diff_matrix = np.diag(diff_vector)
-    udv = np.dot(U, np.dot(diff_matrix, V))
+    dv = np.dot(diff_matrix, V)
+    udv = np.dot(U, dv)
     return udv
 
 """Function to compute the objective for the bisection method"""

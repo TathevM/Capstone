@@ -31,12 +31,19 @@ class OneBitMatrixCompletion:
                 print('50% progress')
             elif k == int(0.75 * self.num_steps):
                 print('75% progress')
-            _, _, _, lam = fun.svd_and_lamdba_x(mk, self.r, self.alpha)
-            proj_input = mk - self.gamma * fun.gradient_log_likelihood(mk, Y, omega)
+            # _, _, _, lam = fun.svd_and_lamdba_x(mk, self.r, self.alpha)
+            # proj_input = mk - self.gamma * fun.gradient_log_likelihood(mk, Y, omega)
+            proj_input = mk + self.gamma * fun.gradient_log_likelihood(mk, Y, omega)
             step = fun.projection_on_set(proj_input, self.r, self.alpha) - mk
             rho = minimize_scalar(fun.bisection_objective, bounds=(0, 1), method='bounded',
                                   args=(mk, Y, omega, step))
             mk = mk + np.dot(rho.x, step)
+            print(mk.max())
+            print(mk.min())
+            print(mk[293, 412])
+            # for i in range(0, 5):
+            #     print(mk[0, i])
+            # print('hello')
 
         mk = self.normalize_matrix(mk)
         return mk
@@ -55,6 +62,8 @@ class OneBitMatrixCompletion:
         for i, j in zip(range(d1), range(d2)):
             if Y.item((i, j)) != cnts.NO_VALUE:
                 omega.append((i, j))
+            # else:
+            #     M.item(i, j) == 0
         return omega, M
 
     @staticmethod
